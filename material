@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Material Property Database</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 0.5rem;
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <header class="text-center mb-6">
+            <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Material Property Database</h1>
+            <p class="text-md text-gray-600 mt-2">Query, compare, and analyze materials for engineering design.</p>
+            <div id="userInfo" class="text-sm text-gray-500 mt-4"></div>
+        </header>
+
+        <!-- Navigation Bar -->
+        <nav class="bg-white rounded-lg shadow-md mb-8 sticky top-4 z-50">
+            <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+                <div class="relative flex items-center justify-center h-16">
+                    <div class="flex items-center justify-center sm:items-stretch sm:justify-start">
+                        <div class="flex-shrink-0 flex items-center">
+                             <svg class="h-8 w-8 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 16v-2m0-8v-2m8 4h2M4 12H2m18-6l-1.414-1.414M5.414 5.414L4 4m16 16l-1.414-1.414M5.414 19.586L4 18m12.414-12.414a5 5 0 10-7.072 7.072 5 5 0 007.072-7.072z" />
+                            </svg>
+                        </div>
+                        <div class="ml-6">
+                            <div class="flex space-x-4">
+                                <a href="#database" class="nav-link text-gray-700 hover:bg-indigo-500 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Database</a>
+                                <a href="#analysis" class="nav-link text-gray-700 hover:bg-indigo-500 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Analysis Tools</a>
+                                <a href="#about" class="nav-link text-gray-700 hover:bg-indigo-500 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">About</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main>
+            <!-- Page 1: Database -->
+            <div id="page-database">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Left Column: Add Material & Search -->
+                    <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-lg">
+                        <h2 class="text-2xl font-semibold mb-4 border-b pb-2">Add New Material</h2>
+                        <form id="add-material-form" class="space-y-4">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700">Material Name</label>
+                                <input type="text" id="name" name="name" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="density" class="block text-sm font-medium text-gray-700">Density (kg/m³)</label>
+                                <input type="number" step="any" id="density" name="density" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="tensile_strength" class="block text-sm font-medium text-gray-700">Tensile Strength (MPa)</label>
+                                <input type="number" step="any" id="tensile_strength" name="tensile_strength" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="thermal_conductivity" class="block text-sm font-medium text-gray-700">Thermal Conductivity (W/m•K)</label>
+                                <input type="number" step="any" id="thermal_conductivity" name="thermal_conductivity" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+                             <div>
+                                <label for="electrical_conductivity" class="block text-sm font-medium text-gray-700">Electrical Conductivity (S/m)</label>
+                                <input type="number" step="any" id="electrical_conductivity" name="electrical_conductivity" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">Add Material</button>
+                        </form>
+
+                        <div class="mt-8">
+                             <h2 class="text-2xl font-semibold mb-4 border-b pb-2">Query Materials</h2>
+                             <input type="text" id="search-bar" placeholder="Search by material name..." class="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Material List and Comparison -->
+                    <div class="lg:col-span-2 space-y-8">
+                        <div class="bg-white p-6 rounded-lg shadow-lg">
+                            <h2 class="text-2xl font-semibold mb-4">Material List</h2>
+                            <div id="material-list" class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                                <p class="text-gray-500">No materials added yet. Add a material to get started.</p>
+                            </div>
+                             <div class="mt-4 text-center">
+                                <button id="compare-btn" class="bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out" disabled>Compare Selected</button>
+                            </div>
+                        </div>
+
+                        <div id="comparison-section" class="bg-white p-6 rounded-lg shadow-lg hidden">
+                            <h2 class="text-2xl font-semibold mb-4">Comparison Analysis</h2>
+                            <div id="comparison-table" class="overflow-x-auto"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 2: Analysis Tools -->
+            <div id="page-analysis" class="hidden">
+                 <div class="p-6 bg-white rounded-lg shadow-lg max-w-4xl mx-auto">
+                    <h2 class="text-2xl font-semibold mb-4">Analysis Tools</h2>
+                    <div class="border-t pt-4">
+                        <h3 class="text-xl font-semibold mb-2">Strength-to-Weight Ratio Calculator</h3>
+                        <p class="text-gray-600 mb-4">Select a material to calculate its strength-to-weight ratio. A higher value is generally better for applications where high strength and low weight are critical.</p>
+                        <form id="analysis-form" class="space-y-4 max-w-md">
+                            <div>
+                                <label for="material-select" class="block text-sm font-medium text-gray-700">Select Material</label>
+                                <select id="material-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                    <option>Loading materials...</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Calculate</button>
+                        </form>
+                        <div id="analysis-result" class="mt-6 p-4 bg-gray-50 rounded-lg hidden"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 3: About -->
+            <div id="page-about" class="hidden">
+                 <div class="p-6 bg-white rounded-lg shadow-lg max-w-4xl mx-auto">
+                    <h2 class="text-2xl font-semibold mb-4">About This Application</h2>
+                    <div class="prose max-w-none text-gray-700">
+                        <p>This Material Property Database is a powerful tool designed for engineers, students, and material scientists. It provides a simple yet effective way to store, manage, and analyze properties of various engineering materials.</p>
+                        <h3 class="text-xl font-semibold mt-6 mb-2">Core Features:</h3>
+                        <ul class="list-disc list-inside space-y-2">
+                            <li><strong>Persistent Storage:</strong> All your data is securely stored in a cloud database (Firebase Firestore), allowing you to access it from anywhere.</li>
+                            <li><strong>Real-time Updates:</strong> The application reflects changes instantly without needing a page refresh.</li>
+                            <li><strong>Query and Search:</strong> Quickly find the material you're looking for with the built-in search functionality.</li>
+                            <li><strong>Comparison Tool:</strong> Select two or more materials to generate a side-by-side comparison table, making it easy to weigh the pros and cons for a specific application.</li>
+                            <li><strong>Analysis Tools:</strong> Perform quick calculations like strength-to-weight ratio to aid in material selection.</li>
+                        </ul>
+                        <p class="mt-6">This application was built using modern web technologies including HTML5, Tailwind CSS for a responsive design, and JavaScript with Firebase for backend services.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Material Details Modal -->
+    <div id="details-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="modal-close-btn">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Firebase Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, getDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- App Configuration ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        
+        let db, auth;
+        let userId = null;
+        let materials = [];
+        let selectedForComparison = new Set();
+        let materialsCollectionRef;
+        
+        // --- UI Element References ---
+        const addMaterialForm = document.getElementById('add-material-form');
+        const materialListDiv = document.getElementById('material-list');
+        const searchBar = document.getElementById('search-bar');
+        const compareBtn = document.getElementById('compare-btn');
+        const comparisonSection = document.getElementById('comparison-section');
+        const comparisonTableDiv = document.getElementById('comparison-table');
+        const userInfoDiv = document.getElementById('userInfo');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const materialSelect = document.getElementById('material-select');
+        const analysisForm = document.getElementById('analysis-form');
+        const analysisResultDiv = document.getElementById('analysis-result');
+
+        const pages = {
+            database: document.getElementById('page-database'),
+            analysis: document.getElementById('page-analysis'),
+            about: document.getElementById('page-about'),
+        };
+
+        // Modal elements
+        const detailsModal = document.getElementById('details-modal');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+        const modalBody = document.getElementById('modal-body');
+
+        // --- Initialization ---
+        async function initialize() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                setLogLevel('debug');
+                setupAuthListener();
+                setupNavigation();
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                materialListDiv.innerHTML = `<p class="text-red-500">Error: Could not connect to the database.</p>`;
+            }
+        }
+        
+        // --- Authentication ---
+        function setupAuthListener() {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    userId = user.uid;
+                    userInfoDiv.textContent = `User ID: ${userId}`;
+                    materialsCollectionRef = collection(db, `artifacts/${appId}/users/${userId}/materials`);
+                    setupRealtimeListener();
+                } else {
+                    signIn();
+                }
+            });
+        }
+        
+        async function signIn() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Authentication failed:", error);
+                 userInfoDiv.textContent = `Authentication failed.`;
+            }
+        }
+
+        // --- Firestore Realtime Listener ---
+        function setupRealtimeListener() {
+            if (!materialsCollectionRef) return;
+            onSnapshot(materialsCollectionRef, (snapshot) => {
+                materials = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderMaterials(searchBar.value);
+                populateAnalysisDropdown();
+            }, (error) => {
+                console.error("Error fetching materials:", error);
+                materialListDiv.innerHTML = `<p class="text-red-500">Error fetching data. Please check console.</p>`;
+            });
+        }
+
+        // --- Rendering & UI Functions ---
+        function renderMaterials(filter = '') {
+            const lowercasedFilter = filter.toLowerCase();
+            const filteredMaterials = materials.filter(material => 
+                material.name.toLowerCase().includes(lowercasedFilter)
+            );
+
+            if (filteredMaterials.length === 0 && materials.length > 0) {
+                 materialListDiv.innerHTML = `<p class="text-gray-500">No materials match your search.</p>`;
+                 return;
+            }
+            if(materials.length === 0){
+                materialListDiv.innerHTML = `<p class="text-gray-500">No materials added yet. Add a material to get started.</p>`;
+                return;
+            }
+
+            materialListDiv.innerHTML = filteredMaterials.map(material => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <div class="flex items-center">
+                        <input type="checkbox" data-id="${material.id}" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 comparison-checkbox">
+                        <span class="ml-3 font-medium">${material.name}</span>
+                    </div>
+                    <div>
+                        <button data-id="${material.id}" class="view-btn text-indigo-600 hover:text-indigo-900 mr-3">View</button>
+                        <button data-id="${material.id}" class="delete-btn text-red-600 hover:text-red-900">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function renderComparisonTable() {
+            if (selectedForComparison.size < 2) {
+                comparisonSection.classList.add('hidden');
+                return;
+            }
+
+            const materialsToCompare = materials.filter(m => selectedForComparison.has(m.id));
+            
+            comparisonTableDiv.innerHTML = `
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Property</th>
+                            ${materialsToCompare.map(m => `<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${m.name}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Density (kg/m³)</td>
+                            ${materialsToCompare.map(m => `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${m.density}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Tensile Strength (MPa)</td>
+                            ${materialsToCompare.map(m => `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${m.tensile_strength}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Thermal Conductivity (W/m•K)</td>
+                            ${materialsToCompare.map(m => `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${m.thermal_conductivity}</td>`).join('')}
+                        </tr>
+                         <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Electrical Conductivity (S/m)</td>
+                            ${materialsToCompare.map(m => `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${m.electrical_conductivity}</td>`).join('')}
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+            comparisonSection.classList.remove('hidden');
+        }
+
+        function renderMaterialDetails(material) {
+            modalBody.innerHTML = `
+                <h2 class="text-3xl font-bold mb-4">${material.name}</h2>
+                <div class="space-y-2">
+                    <p><strong>Density:</strong> ${material.density} kg/m³</p>
+                    <p><strong>Tensile Strength:</strong> ${material.tensile_strength} MPa</p>
+                    <p><strong>Thermal Conductivity:</strong> ${material.thermal_conductivity} W/m•K</p>
+                    <p><strong>Electrical Conductivity:</strong> ${material.electrical_conductivity} S/m</p>
+                </div>
+            `;
+            detailsModal.style.display = 'block';
+        }
+
+        function populateAnalysisDropdown() {
+            if (materials.length > 0) {
+                materialSelect.innerHTML = materials.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            } else {
+                materialSelect.innerHTML = '<option>No materials available</option>';
+            }
+        }
+
+        function updateCompareButtonState() {
+            compareBtn.disabled = selectedForComparison.size < 2;
+             if (compareBtn.disabled) {
+                compareBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                compareBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // --- Navigation ---
+        function showPage(pageId) {
+            Object.values(pages).forEach(page => page.classList.add('hidden'));
+            if (pages[pageId]) {
+                pages[pageId].classList.remove('hidden');
+            }
+            navLinks.forEach(link => {
+                if (link.hash === `#${pageId}`) {
+                    link.classList.add('bg-indigo-500', 'text-white');
+                    link.classList.remove('text-gray-700');
+                } else {
+                    link.classList.remove('bg-indigo-500', 'text-white');
+                    link.classList.add('text-gray-700');
+                }
+            });
+        }
+
+        function setupNavigation() {
+            window.addEventListener('hashchange', () => {
+                const pageId = window.location.hash.substring(1) || 'database';
+                showPage(pageId);
+            });
+            const initialPageId = window.location.hash.substring(1) || 'database';
+            showPage(initialPageId);
+        }
+
+        // --- Event Handlers ---
+        addMaterialForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!materialsCollectionRef) return;
+            
+            const newMaterial = {
+                name: addMaterialForm.name.value,
+                density: parseFloat(addMaterialForm.density.value),
+                tensile_strength: parseFloat(addMaterialForm.tensile_strength.value),
+                thermal_conductivity: parseFloat(addMaterialForm.thermal_conductivity.value),
+                electrical_conductivity: parseFloat(addMaterialForm.electrical_conductivity.value),
+            };
+            try {
+                await addDoc(materialsCollectionRef, newMaterial);
+                addMaterialForm.reset();
+            } catch (error) {
+                console.error("Error adding material: ", error);
+            }
+        });
+
+        materialListDiv.addEventListener('click', async (e) => {
+            const target = e.target;
+            const id = target.dataset.id;
+            if (!id) return;
+
+            if (target.classList.contains('delete-btn')) {
+                await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/materials`, id));
+                selectedForComparison.delete(id);
+                updateCompareButtonState();
+                renderComparisonTable();
+            } else if (target.classList.contains('view-btn')) {
+                const materialDoc = await getDoc(doc(db, `artifacts/${appId}/users/${userId}/materials`, id));
+                if (materialDoc.exists()) renderMaterialDetails(materialDoc.data());
+            } else if (target.classList.contains('comparison-checkbox')) {
+                if(target.checked) selectedForComparison.add(id);
+                else selectedForComparison.delete(id);
+                updateCompareButtonState();
+            }
+        });
+        
+        searchBar.addEventListener('input', (e) => renderMaterials(e.target.value));
+        compareBtn.addEventListener('click', () => renderComparisonTable());
+        modalCloseBtn.addEventListener('click', () => detailsModal.style.display = 'none');
+        window.addEventListener('click', (event) => {
+            if (event.target == detailsModal) detailsModal.style.display = "none";
+        });
+
+        analysisForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const selectedId = materialSelect.value;
+            const material = materials.find(m => m.id === selectedId);
+
+            if (material) {
+                const ratio = (material.tensile_strength / material.density).toFixed(4);
+                analysisResultDiv.innerHTML = `
+                    <h4 class="font-semibold text-lg">${material.name}</h4>
+                    <p><strong>Tensile Strength:</strong> ${material.tensile_strength} MPa</p>
+                    <p><strong>Density:</strong> ${material.density} kg/m³</p>
+                    <p class="mt-2 text-xl font-bold text-indigo-700">Strength-to-Weight Ratio: ${ratio} MPa•m³/kg</p>
+                `;
+            } else {
+                 analysisResultDiv.innerHTML = `<p class="text-red-500">Please select a valid material.</p>`;
+            }
+             analysisResultDiv.classList.remove('hidden');
+        });
+        
+        // --- Start the application ---
+        initialize();
+    </script>
+</body>
+</html>
+
+
